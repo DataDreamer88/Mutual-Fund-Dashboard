@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bigul Mutual Funds - Investment Dashboard</title>
+    <style>
+        :root {
+            --color-primary: #2d5a7b;
+            --color-primary-light: #3d7aa8;
+            --color-accent: #00b4a6;
+            --color-success: #27ae60;
+            --color-danger: #e74c3c;
+            --color-warning: #f39c12;
+            --color-dark: #2c3e50;
+            --color-light: #ecf0f1;
+            --color-border: #bdc3c7;
+            --color-text: #34495e;
+            --color-text-light: #7f8c8d;
+            --space: 16px;
+            --radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--color-text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--space);
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+            color: white;
+            padding: 20px var(--space);
+            border-radius: var(--radius);
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            background: white;
+            padding: 10px;
+            border-radius: var(--radius);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-tab {
+            padding: 10px 20px;
+            border: 2px solid transparent;
+            background: transparent;
+            cursor: pointer;
+            border-radius: var(--radius);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            color: var(--color-text);
+            font-size: 0.95rem;
+        }
+
+        .nav-tab:hover {
+            background: var(--color-light);
+        }
+
+        .nav-tab.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Grid Layouts */
+        .grid {
+            display: grid;
+            gap: var(--space);
+            margin-bottom: 2rem;
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .grid-4 {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--color-primary);
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--color-dark);
+        }
+
+        .card-stat {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--color-primary);
+            margin-bottom: 5px;
+        }
+
+        .card-subtitle {
+            font-size: 0.85rem;
+            color: var(--color-text-light);
+        }
+
+        /* Info Tooltip */
+        .tooltip-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background: var(--color-accent);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 18px;
+            font-size: 0.8rem;
+            cursor: help;
+            margin-left: 5px;
+            position: relative;
+        }
+
+        .tooltip-icon:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: -150px;
+            width: 300px;
+            background: var(--color-dark);
+            color: white;
+            padding: 10px;
+            border-radius: var(--radius);
+            font-size: 0.85rem;
+            z-index: 1000;
+            white-space: normal;
+            line-height: 1.4;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: var(--color-dark);
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(45, 90, 123, 0.1);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-primary-light);
+            box-shadow: 0 4px 12px rgba(45, 90, 123, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--color-accent);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #009d95;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        .btn-full-width {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th {
+            background: var(--color-light);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--color-dark);
+            border-bottom: 2px solid var(--color-primary);
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        tr:hover {
+            background: var(--color-light);
+        }
+
+        /* Statistics */
+        .stat-positive {
+            color: var(--color-success);
+            font-weight: 600;
+        }
+
+        .stat-negative {
+            color: var(--color-danger);
+            font-weight: 600;
+        }
+
+        /* Filter/Sort Section */
+        .filters-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: var(--space);
+            margin-bottom: 15px;
+        }
+
+        /* Fund Category Badge */
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .badge-primary {
+            background: rgba(45, 90, 123, 0.1);
+            color: var(--color-primary);
+        }
+
+        .badge-success {
+            background: rgba(39, 174, 96, 0.1);
+            color: var(--color-success);
+        }
+
+        .badge-warning {
+            background: rgba(243, 156, 18, 0.1);
+            color: var(--color-warning);
+        }
+
+        .badge-danger {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--color-danger);
+        }
+
+        /* Fund Card */
+        .fund-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            border: 1px solid var(--color-border);
+            margin-bottom: var(--space);
+            transition: all 0.3s ease;
+        }
+
+        .fund-card:hover {
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+            border-color: var(--color-primary);
+        }
+
+        .fund-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .fund-name {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--color-dark);
+        }
+
+        .fund-rating {
+            font-size: 1.5rem;
+            color: var(--color-warning);
+        }
+
+        .fund-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+            padding: 15px 0;
+            border-top: 1px solid var(--color-light);
+            border-bottom: 1px solid var(--color-light);
+        }
+
+        .fund-detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .fund-detail-label {
+            font-size: 0.8rem;
+            color: var(--color-text-light);
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .fund-detail-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--color-dark);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--radius);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--color-light);
+            padding-bottom: 1rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-dark);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--color-text-light);
+        }
+
+        .close-btn:hover {
+            color: var(--color-dark);
+        }
+
+        /* Charts */
+        .chart-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+        }
+
+        canvas {
+            max-height: 400px;
+        }
+
+        /* Educational Callout */
+        .education-box {
+            background: linear-gradient(135deg, rgba(0, 180, 166, 0.1) 0%, rgba(45, 90, 123, 0.1) 100%);
+            border-left: 4px solid var(--color-accent);
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin: 15px 0;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--color-text);
+        }
+
+        .education-box strong {
+            color: var(--color-primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            .nav-tabs {
+                overflow-x: auto;
+            }
+
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tooltip-icon:hover::after {
+                left: -100px;
+                width: 250px;
+            }
+
+            .fund-details {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Animations */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Tabs for Fund Details */
+        .fund-tabs {
+            display: flex;
+            gap: 10px;
+            border-bottom: 2px solid var(--color-light);
+            margin-bottom: 1.5rem;
+        }
+
+        .fund-tab-btn {
+            padding: 10px 15px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--color-text-light);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .fund-tab-btn.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+
+        .fund-tab-content {
+            display: none;
+        }
+
+        .fund-tab-content.active {
+            display: block;
+        }
+
+        /* Success Message */
+        .alert {
+            padding: 12px 15px;
+            border-radius: var(--radius);
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: rgba(39, 174, 96, 0.1);
+            color: var(--color-success);
+            border-left: 4px solid var(--color-success);
+        }
+
+        /* Transaction List */
+        .transaction-item {
+            background: white;
+            padding: 15px;
+            border-radius: var(--radius);
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid var(--color-primary);
+        }
+
+        .transaction-item.redemption {
+            border-left-color: var(--color-danger);
+        }
+
+        .transaction-item.dividend {
+            border-left-color: var(--color-success);
+        }
+
+        .transaction-info {
+            flex: 1;
+        }
+
+        .transaction-type {
+            font-weight: 600;
+            color: var(--color-dark);
+        }
+
+        .transaction-date {
+            font-size: 0.85rem;
+            color: var(--color-text-light);
+        }
+
+        .transaction-amount {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            background: var(--color-light);
+            border-radius: 10px;
+            height: 8px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+            transition: width 0.3s ease;
+        }
+
+        /* Comparison Table */
+        .comparison-table {
+            overflow-x: auto;
+        }
+
+        .comparison-table table {
+            min-width: 500px;
+        }
+
+        /* Sector Breakdown */
+        .sector-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .sector-name {
+            min-width: 100px;
+            font-weight: 500;
+        }
+
+        .sector-bar-wrapper {
+            flex: 1;
+            margin: 0 15px;
+        }
+
+        .sector-bar {
+            height: 20px;
+            background: var(--color-light);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .sector-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .sector-percentage {
+            min-width: 50px;
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .separator {
+            height: 1px;
+            background: var(--color-border);
+            margin: 1.5rem 0;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .button-group .btn {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 2rem;
+            color: var(--color-text-light);
+        }
+
+        .no-data svg {
+            width: 60px;
+            height: 60px;
+            opacity: 0.3;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>💰 Bigul Mutual Funds Dashboard</h1>
+            <p>Explore, Invest, Track & Optimize Your Mutual Fund Portfolio</p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-tab="explore">📊 Explore Funds</button>
+            <button class="nav-tab" data-tab="calculator">🧮 Fund Calculator</button>
+            <button class="nav-tab" data-tab="portfolio">📈 My Portfolio</button>
+            <button class="nav-tab" data-tab="compare">⚔️ Compare</button>
+            <button class="nav-tab" data-tab="tax">🏦 Tax Optimization</button>
+            <button class="nav-tab" data-tab="analytics">📉 Analytics</button>
+        </div>
+
+        <!-- EXPLORE FUNDS SECTION -->
+        <div id="explore" class="content-section active">
+            <div class="filters-section">
+                <h2 style="margin-bottom: 1rem;">🔍 Filter & Sort Funds</h2>
+                <div class="filters-grid">
+                    <div class="form-group">
+                        <label>Fund Category</label>
+                        <select id="categoryFilter" onchange="filterFunds()">
+                            <option value="">All Categories</option>
+                            <option value="Large Cap">Large Cap</option>
+                            <option value="Mid Cap">Mid Cap</option>
+                            <option value="Small Cap">Small Cap</option>
+                            <option value="Flexi Cap">Flexi Cap</option>
+                            <option value="Balanced">Balanced</option>
+                            <option value="Debt">Debt</option>
+                            <option value="Gold">Gold</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Minimum SIP 
+                            <span class="tooltip-icon" data-tooltip="SIP (Systematic Investment Plan) is investing a fixed amount regularly. Minimum SIP is the smallest amount you can invest each month."></span>
+                        </label>
+                        <select id="sipFilter" onchange="filterFunds()">
+                            <option value="">Any Amount</option>
+                            <option value="500">₹500 or less</option>
+                            <option value="1000">₹1,000 or less</option>
+                            <option value="5000">₹5,000 or less</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>1-Year Return</label>
+                        <select id="returnFilter" onchange="filterFunds()">
+                            <option value="">Any Return</option>
+                            <option value="20">20%+ Return</option>
+                            <option value="15">15-20% Return</option>
+                            <option value="10">10-15% Return</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Expense Ratio (TER)
+                            <span class="tooltip-icon" data-tooltip="TER (Total Expense Ratio) is the annual cost of managing the fund as a % of your investment. Lower is better. For example, 1% TER means you pay ₹1 per ₹100 invested annually."></span>
+                        </label>
+                        <select id="terFilter" onchange="filterFunds()">
+                            <option value="">Any TER</option>
+                            <option value="0.5">Below 0.5%</option>
+                            <option value="1">Below 1%</option>
+                            <option value="1.5">Below 1.5%</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="resetFilters()">Reset All Filters</button>
+            </div>
+
+            <!-- Fund List -->
+            <div id="fundsList"></div>
+        </div>
+
+        <!-- CALCULATOR SECTION -->
+        <div id="calculator" class="content-section">
+            <div class="grid grid-2">
+                <div class="card">
+                    <h2 class="card-title">SIP Calculator 
+                        <span class="tooltip-icon" data-tooltip="Calculate how much money you can accumulate by investing a fixed amount (SIP) every month for a specific period."></span>
+                    </h2>
+                    <div class="form-group">
+                        <label>Monthly Investment (₹)</label>
+                        <input type="number" id="sipAmount" value="5000" min="500" max="1000000" onchange="calculateSIP()">
+                    </div>
+                    <div class="form-group">
+                        <label>Investment Period (Years)</label>
+                        <input type="number" id="sipYears" value="10" min="1" max="50" onchange="calculateSIP()">
+                    </div>
+                    <div class="form-group">
+                        <label>Expected Annual Return (%)</label>
+                        <input type="number" id="sipReturn" value="12" min="0" max="100" step="0.5" onchange="calculateSIP()">
+                    </div>
+                    <div class="form-group">
+                        <label>Fund Name (Optional)</label>
+                        <input type="text" id="sipFundName" placeholder="e.g., HDFC Top 100">
+                    </div>
+                    <button class="btn btn-primary btn-full-width" onclick="calculateSIP()">Calculate SIP Returns</button>
+                    <div id="sipResult" style="margin-top: 1.5rem;"></div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">Lumpsum Calculator 
+                        <span class="tooltip-icon" data-tooltip="Calculate how much your one-time investment can grow over time with compound interest."></span>
+                    </h2>
+                    <div class="form-group">
+                        <label>Investment Amount (₹)</label>
+                        <input type="number" id="lumpsumAmount" value="100000" min="1000" max="10000000" onchange="calculateLumpsum()">
+                    </div>
+                    <div class="form-group">
+                        <label>Investment Period (Years)</label>
+                        <input type="number" id="lumpsumYears" value="10" min="1" max="50" onchange="calculateLumpsum()">
+                    </div>
+                    <div class="form-group">
+                        <label>Expected Annual Return (%)</label>
+                        <input type="number" id="lumpsumReturn" value="12" min="0" max="100" step="0.5" onchange="calculateLumpsum()">
+                    </div>
+                    <div class="form-group">
+                        <label>Fund Name (Optional)</label>
+                        <input type="text" id="lumpsumFundName" placeholder="e.g., SBI Blue Chip">
+                    </div>
+                    <button class="btn btn-primary btn-full-width" onclick="calculateLumpsum()">Calculate Lumpsum Returns</button>
+                    <div id="lumpsumResult" style="margin-top: 1.5rem;"></div>
+                </div>
+            </div>
+
+            <div class="education-box">
+                <strong>💡 SIP vs Lumpsum:</strong> SIP is ideal for beginners as it reduces risk through regular investing. Lumpsum is better if you have a large amount and expect market upswing. A balanced approach: Invest lumpsum in debt funds, SIP in equity funds!
+            </div>
+        </div>
+
+        <!-- PORTFOLIO SECTION -->
+        <div id="portfolio" class="content-section">
+            <div class="grid grid-4">
+                <div class="card">
+                    <div class="card-title">Total Invested</div>
+                    <div class="card-stat">₹8,50,000</div>
+                    <div class="card-subtitle">Total Amount Invested</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Current Value</div>
+                    <div class="card-stat stat-positive">₹12,45,000</div>
+                    <div class="card-subtitle">+46.5% Gain</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Gains</div>
+                    <div class="card-stat stat-positive">₹3,95,000</div>
+                    <div class="card-subtitle">Unrealized Profit</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">XIRR 
+                        <span class="tooltip-icon" data-tooltip="XIRR (Extended Internal Rate of Return) is the accurate annualized return on your investment, accounting for the timing of your investments."></span>
+                    </div>
+                    <div class="card-stat stat-positive">14.2%</div>
+                    <div class="card-subtitle">Annualized Return</div>
+                </div>
+            </div>
+
+            <div class="grid grid-2">
+                <div class="card">
+                    <h2 class="card-title">💼 Holdings Summary</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fund Name</th>
+                                <th>Units</th>
+                                <th>NAV</th>
+                                <th>Current Value</th>
+                                <th>Gain %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>HDFC Top 100</strong></td>
+                                <td>150</td>
+                                <td>₹850</td>
+                                <td>₹1,27,500</td>
+                                <td class="stat-positive">+18%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SBI Blue Chip</strong></td>
+                                <td>200</td>
+                                <td>₹420</td>
+                                <td>₹84,000</td>
+                                <td class="stat-positive">+12%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Axis Balanced</strong></td>
+                                <td>300</td>
+                                <td>₹280</td>
+                                <td>₹84,000</td>
+                                <td class="stat-negative">-5%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ICICI Gold Fund</strong></td>
+                                <td>50</td>
+                                <td>₹450</td>
+                                <td>₹22,500</td>
+                                <td class="stat-positive">+8%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">📅 Transaction Calendar</h2>
+                    <div class="transaction-item">
+                        <div class="transaction-info">
+                            <div class="transaction-type">SIP Investment - HDFC Top 100</div>
+                            <div class="transaction-date">Dec 10, 2024</div>
+                        </div>
+                        <div class="transaction-amount">+₹5,000</div>
+                    </div>
+                    <div class="transaction-item dividend">
+                        <div class="transaction-info">
+                            <div class="transaction-type">Dividend - SBI Blue Chip</div>
+                            <div class="transaction-date">Dec 5, 2024</div>
+                        </div>
+                        <div class="transaction-amount">+₹1,200</div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-info">
+                            <div class="transaction-type">SIP Investment - Axis Balanced</div>
+                            <div class="transaction-date">Dec 1, 2024</div>
+                        </div>
+                        <div class="transaction-amount">+₹3,000</div>
+                    </div>
+                    <div class="transaction-item redemption">
+                        <div class="transaction-info">
+                            <div class="transaction-type">Partial Redemption</div>
+                            <div class="transaction-date">Nov 28, 2024</div>
+                        </div>
+                        <div class="transaction-amount">-₹50,000</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">🏭 Sector-wise Allocation</h2>
+                <div class="sector-item">
+                    <div class="sector-name">IT & Tech</div>
+                    <div class="sector-bar-wrapper">
+                        <div class="sector-bar">
+                            <div class="sector-fill" style="width: 28%;">28%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sector-item">
+                    <div class="sector-name">Banking</div>
+                    <div class="sector-bar-wrapper">
+                        <div class="sector-bar">
+                            <div class="sector-fill" style="width: 22%;">22%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sector-item">
+                    <div class="sector-name">Pharma</div>
+                    <div class="sector-bar-wrapper">
+                        <div class="sector-bar">
+                            <div class="sector-fill" style="width: 15%;">15%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sector-item">
+                    <div class="sector-name">Auto</div>
+                    <div class="sector-bar-wrapper">
+                        <div class="sector-bar">
+                            <div class="sector-fill" style="width: 12%;">12%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sector-item">
+                    <div class="sector-name">Energy</div>
+                    <div class="sector-bar-wrapper">
+                        <div class="sector-bar">
+                            <div class="sector-fill" style="width: 10%;">10%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sector-item">
+                    <div class="sector-name">FMCG & Others</div>
+                    <div class="sector-bar-wrapper">
+                        <div class="sector-bar">
+                            <div class="sector-fill" style="width: 13%;">13%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="education-box">
+                    <strong>💡 Sector Diversification:</strong> A healthy portfolio should have exposure across different sectors. Heavy concentration in one sector (>30%) increases risk. Aim for 5-8 key sectors for balanced growth.
+                </div>
+            </div>
+        </div>
+
+        <!-- COMPARE SECTION -->
+        <div id="compare" class="content-section">
+            <div class="card">
+                <h2 class="card-title">Compare Funds Side-by-Side</h2>
+                <div class="form-group">
+                    <label>Select Funds to Compare</label>
+                    <select id="fund1" onchange="updateComparison()">
+                        <option value="">Choose Fund 1</option>
+                        <option value="hdfc-top-100">HDFC Top 100</option>
+                        <option value="sbi-blue-chip">SBI Blue Chip</option>
+                        <option value="axis-balanced">Axis Balanced</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Select Second Fund</label>
+                    <select id="fund2" onchange="updateComparison()">
+                        <option value="">Choose Fund 2</option>
+                        <option value="hdfc-top-100">HDFC Top 100</option>
+                        <option value="sbi-blue-chip">SBI Blue Chip</option>
+                        <option value="axis-balanced">Axis Balanced</option>
+                    </select>
+                </div>
+
+                <div id="comparisonResult" style="margin-top: 1.5rem;"></div>
+            </div>
+        </div>
+
+        <!-- TAX OPTIMIZATION SECTION -->
+        <div id="tax" class="content-section">
+            <div class="card">
+                <h2 class="card-title">🏦 Tax-Saving Strategy</h2>
+                <div class="education-box">
+                    <strong>📌 Capital Gains Tax in India:</strong>
+                    <br><strong>Short-term (< 1 year):</strong> Added to income & taxed at your slab rate (10-30%)
+                    <br><strong>Long-term (≥ 1 year):</strong> 20% flat rate with indexation benefit OR 10% without indexation (whichever is lower)
+                    <br><strong>ELSS funds:</strong> Locked for 3 years but guaranteed long-term status. Great for reducing taxable income under Section 80C!
+                </div>
+
+                <div style="margin-top: 1.5rem;">
+                    <h3 style="margin-bottom: 1rem; color: var(--color-primary);">Quick Tax Optimization Tips:</h3>
+                    <div class="grid grid-2">
+                        <div class="card" style="border-left-color: var(--color-accent);">
+                            <div class="card-title">1. Harvest Losses</div>
+                            <p>Sell underperforming funds at loss to offset capital gains. Can save 20-30% tax!</p>
+                        </div>
+                        <div class="card" style="border-left-color: var(--color-accent);">
+                            <div class="card-title">2. Invest in ELSS</div>
+                            <p>Get income tax deduction under Section 80C + long-term capital gains benefit. Double benefit!</p>
+                        </div>
+                        <div class="card" style="border-left-color: var(--color-accent);">
+                            <div class="card-title">3. Hold for 1+ Year</div>
+                            <p>Convert short-term to long-term gains. Indexation benefit can reduce tax to near 0%.</p>
+                        </div>
+                        <div class="card" style="border-left-color: var(--color-accent);">
+                            <div class="card-title">4. Strategic Timing</div>
+                            <p>Realize gains in low-income years. Plan redemptions around financial year-end.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin: 2rem 0 1rem; color: var(--color-primary);">Your Tax Analysis</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fund Name</th>
+                            <th>Holding Period</th>
+                            <th>Gain</th>
+                            <th>Tax Type</th>
+                            <th>Estimated Tax (30% slab)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>HDFC Top 100</td>
+                            <td>2 years 3 months</td>
+                            <td>₹27,500</td>
+                            <td style="color: var(--color-success); font-weight: 600;">Long-term</td>
+                            <td style="color: var(--color-success);">₹2,750 (10%)</td>
+                        </tr>
+                        <tr>
+                            <td>SBI Blue Chip</td>
+                            <td>1 year 8 months</td>
+                            <td>₹10,080</td>
+                            <td style="color: var(--color-success); font-weight: 600;">Long-term</td>
+                            <td style="color: var(--color-success);">₹1,008 (10%)</td>
+                        </tr>
+                        <tr>
+                            <td>Axis Balanced</td>
+                            <td>6 months</td>
+                            <td>₹4,200</td>
+                            <td style="color: var(--color-danger); font-weight: 600;">Short-term</td>
+                            <td style="color: var(--color-danger);">₹1,260 (30%)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ANALYTICS SECTION -->
+        <div id="analytics" class="content-section">
+            <div class="grid grid-2">
+                <div class="chart-container">
+                    <h3 style="margin-bottom: 1rem;">📊 Portfolio Performance (1 Year)</h3>
+                    <canvas id="performanceChart"></canvas>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">📈 Performance Metrics
+                        <span class="tooltip-icon" data-tooltip="Sharpe Ratio measures risk-adjusted return. Higher is better. A ratio above 1 is considered good."></span>
+                    </h3>
+                    <div style="margin-top: 1rem;">
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Sharpe Ratio:</strong> 1.45 ✓
+                            <div class="progress-bar" style="margin-top: 5px;">
+                                <div class="progress-fill" style="width: 72.5%;"></div>
+                            </div>
+                            <small style="color: var(--color-text-light);">Risk-adjusted performance</small>
+                        </div>
+
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Beta:</strong> 0.95
+                            <div class="progress-bar" style="margin-top: 5px;">
+                                <div class="progress-fill" style="width: 95%;"></div>
+                            </div>
+                            <small style="color: var(--color-text-light);">Market sensitivity (1.0 = Market)</small>
+                        </div>
+
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Std Dev:</strong> 12.5%
+                            <div class="progress-bar" style="margin-top: 5px;">
+                                <div class="progress-fill" style="width: 62.5%;"></div>
+                            </div>
+                            <small style="color: var(--color-text-light);">Volatility (lower is safer)</small>
+                        </div>
+
+                        <div class="education-box" style="margin-top: 1.5rem;">
+                            <strong>What these mean:</strong><br>
+                            • <strong>Sharpe Ratio:</strong> Your returns per unit of risk taken<br>
+                            • <strong>Beta:</strong> How much your fund moves vs market<br>
+                            • <strong>Std Dev:</strong> How volatile your returns are
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">🎯 Asset Allocation</h3>
+                <div class="sector-item">
+                    <div class="sector-name">Equity</div>
+                    <div class="sector-bar-wrapper">
+                        <div class="sector-bar">
+                            <div class="sector-fill" style="width: 65%; background: linear-gradient(90deg, #e74c3c, #c0392b);">65%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sector-item">
+                    <div class="sector-name">Debt</div>
+                    <div class="sector-bar-wrapper">
+                        <div class="sector-bar">
+                            <div class="sector-fill" style="width: 25%; background: linear-gradient(90deg, #3498db, #2980b9);">25%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sector-item">
+                    <div class="sector-name">Gold & Commodities</div>
+                    <div class="sector-bar-wrapper">
+                        <div class="sector-bar">
+                            <div class="sector-fill" style="width: 10%; background: linear-gradient(90deg, #f39c12, #d68910);">10%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="education-box" style="margin-top: 1.5rem;">
+                    <strong>💡 Recommended Allocation:</strong><br>
+                    Young & aggressive (age < 35): 80-90% Equity<br>
+                    Balanced (age 35-50): 60-70% Equity, 20-30% Debt<br>
+                    Conservative (age > 50): 40-50% Equity, 40-50% Debt, 10% Gold<br>
+                    <strong>Rule of thumb:</strong> Your equity % = 120 - Your Age
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fund Detail Modal -->
+    <div id="fundModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalFundName">Fund Name</h2>
+                <button class="close-btn" onclick="closeFundModal()">&times;</button>
+            </div>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Sample Funds Database
+        const fundsDatabase = [
+            {
+                id: 'hdfc-top-100',
+                name: 'HDFC Top 100 Fund',
+                category: 'Large Cap',
+                aum: '₹45,000 Cr',
+                nav: '850',
+                minSip: '500',
+                minLumpsum: '5000',
+                ter: '0.43%',
+                return1Y: '22.5%',
+                return3Y: '18.2%',
+                return5Y: '16.8%',
+                rating: '⭐⭐⭐⭐⭐',
+                fundManager: 'Prashant Jain',
+                benchmark: 'Sensex',
+                description: 'Diversified large-cap fund focusing on India\'s biggest 100 companies.',
+                topHoldings: ['TCS', 'Reliance', 'HDFC Bank', 'Infosy', 'ICICI Bank']
+            },
+            {
+                id: 'sbi-blue-chip',
+                name: 'SBI Blue Chip Fund',
+                category: 'Large Cap',
+                aum: '₹38,500 Cr',
+                nav: '420',
+                minSip: '500',
+                minLumpsum: '1000',
+                ter: '0.74%',
+                return1Y: '20.8%',
+                return3Y: '17.5%',
+                return5Y: '15.9%',
+                rating: '⭐⭐⭐⭐',
+                fundManager: 'Saurabh Mukherjea',
+                benchmark: 'Sensex',
+                description: 'Conservative large-cap fund with focus on quality stocks.',
+                topHoldings: ['HDFC Bank', 'TCS', 'Reliance', 'Axis Bank', 'ICICI Bank']
+            },
+            {
+                id: 'axis-balanced',
+                name: 'Axis Balanced Fund',
+                category: 'Balanced',
+                aum: '₹12,300 Cr',
+                nav: '280',
+                minSip: '1000',
+                minLumpsum: '5000',
+                ter: '1.12%',
+                return1Y: '16.2%',
+                return3Y: '14.8%',
+                return5Y: '13.5%',
+                rating: '⭐⭐⭐⭐',
+                fundManager: 'Akshay Khurana',
+                benchmark: 'Hybrid 65:35',
+                description: '65% equity and 35% debt portfolio for balanced growth and stability.',
+                topHoldings: ['Debt (50%)', 'Mid Caps (30%)', 'Large Caps (20%)']
+            },
+            {
+                id: 'mirae-mid-cap',
+                name: 'Mirae Asset Emerging Bluechip',
+                category: 'Mid Cap',
+                aum: '₹28,500 Cr',
+                nav: '420',
+                minSip: '1000',
+                minLumpsum: '5000',
+                ter: '0.85%',
+                return1Y: '28.5%',
+                return3Y: '22.1%',
+                return5Y: '18.9%',
+                rating: '⭐⭐⭐⭐⭐',
+                fundManager: 'Viresh Joshi',
+                benchmark: 'Mid Cap Index',
+                description: 'High-growth mid-cap fund with exposure to emerging business leaders.',
+                topHoldings: ['Apollo Hospitals', 'Astral Poly', 'ICICI Sec', 'Endurance Tech']
+            },
+            {
+                id: 'kotak-small-cap',
+                name: 'Kotak Small Cap Fund',
+                category: 'Small Cap',
+                aum: '₹8,200 Cr',
+                nav: '165',
+                minSip: '5000',
+                minLumpsum: '25000',
+                ter: '1.05%',
+                return1Y: '35.2%',
+                return3Y: '28.5%',
+                return5Y: '22.1%',
+                rating: '⭐⭐⭐⭐',
+                fundManager: 'Aniruddha Deshpande',
+                benchmark: 'Small Cap Index',
+                description: 'High-risk, high-reward small-cap fund for growth investors.',
+                topHoldings: ['Muthoot Finance', 'Capacit\'Or', 'PVR Inox']
+            },
+            {
+                id: 'nippon-india-flexi',
+                name: 'Nippon India Flexi Cap Fund',
+                category: 'Flexi Cap',
+                aum: '₹18,900 Cr',
+                nav: '530',
+                minSip: '500',
+                minLumpsum: '5000',
+                ter: '0.68%',
+                return1Y: '24.1%',
+                return3Y: '19.8%',
+                return5Y: '17.2%',
+                rating: '⭐⭐⭐⭐⭐',
+                fundManager: 'Sunil Singhania',
+                benchmark: 'Nifty 500',
+                description: 'Flexible fund that can invest 25-75% in large, mid, and small caps based on opportunities.',
+                topHoldings: ['Dynamic across market caps']
+            },
+            {
+                id: 'aditya-birla-gold',
+                name: 'Aditya Birla Sun Life Gold Fund',
+                category: 'Gold',
+                aum: '₹5,600 Cr',
+                nav: '285',
+                minSip: '1000',
+                minLumpsum: '5000',
+                ter: '0.45%',
+                return1Y: '14.8%',
+                return3Y: '12.5%',
+                return5Y: '11.2%',
+                rating: '⭐⭐⭐⭐',
+                fundManager: 'Gold Index Tracking',
+                benchmark: 'Gold Spot Price',
+                description: 'Invests in physical gold and gold securities for portfolio diversification.',
+                topHoldings: ['Physical Gold (98%)', 'Gold ETF']
+            }
+        ];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setupNavigation();
+            displayAllFunds();
+            setupCharts();
+        });
+
+        function setupNavigation() {
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    switchTab(tabName);
+                });
+            });
+        }
+
+        function switchTab(tabName) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Show selected section
+            document.getElementById(tabName).classList.add('active');
+
+            // Update nav buttons
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+            // Redraw charts if needed
+            if (tabName === 'analytics') {
+                setTimeout(() => setupCharts(), 100);
+            }
+        }
+
+        function displayAllFunds() {
+            const fundsList = document.getElementById('fundsList');
+            fundsList.innerHTML = fundsDatabase.map(fund => createFundCard(fund)).join('');
+        }
+
+        function createFundCard(fund) {
+            return `
+                <div class="fund-card">
+                    <div class="fund-header">
+                        <div>
+                            <div class="fund-name">${fund.name}</div>
+                            <div style="margin-top: 5px;">
+                                <span class="badge badge-primary">${fund.category}</span>
+                            </div>
+                        </div>
+                        <div class="fund-rating">${fund.rating}</div>
+                    </div>
+                    <div class="fund-details">
+                        <div class="fund-detail-item">
+                            <div class="fund-detail-label">NAV</div>
+                            <div class="fund-detail-value">₹${fund.nav}</div>
+                        </div>
+                        <div class="fund-detail-item">
+                            <div class="fund-detail-label">1Y Return</div>
+                            <div class="fund-detail-value stat-positive">${fund.return1Y}</div>
+                        </div>
+                        <div class="fund-detail-item">
+                            <div class="fund-detail-label">3Y Return</div>
+                            <div class="fund-detail-value stat-positive">${fund.return3Y}</div>
+                        </div>
+                        <div class="fund-detail-item">
+                            <div class="fund-detail-label">Min SIP</div>
+                            <div class="fund-detail-value">₹${fund.minSip}</div>
+                        </div>
+                        <div class="fund-detail-item">
+                            <div class="fund-detail-label">TER</div>
+                            <div class="fund-detail-value">${fund.ter}</div>
+                        </div>
+                        <div class="fund-detail-item">
+                            <div class="fund-detail-label">AUM</div>
+                            <div class="fund-detail-value" style="font-size: 0.95rem;">${fund.aum}</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary btn-sm" onclick="openFundDetail('${fund.id}')">View Details</button>
+                    <button class="btn btn-primary btn-sm" onclick="investFund('${fund.name}')" style="margin-left: 5px;">Invest Now</button>
+                </div>
+            `;
+        }
+
+        function openFundDetail(fundId) {
+            const fund = fundsDatabase.find(f => f.id === fundId);
+            if (!fund) return;
+
+            document.getElementById('modalFundName').textContent = fund.name;
+            const content = `
+                <div class="fund-tabs">
+                    <button class="fund-tab-btn active" onclick="switchFundTab('overview')">Overview</button>
+                    <button class="fund-tab-btn" onclick="switchFundTab('analysis')">Analysis</button>
+                    <button class="fund-tab-btn" onclick="switchFundTab('education')">Education</button>
+                </div>
+
+                <div id="overview" class="fund-tab-content active">
+                    <div style="margin-bottom: 1rem;">
+                        <strong>Category:</strong> ${fund.category}<br>
+                        <strong>Fund Manager:</strong> ${fund.fundManager}<br>
+                        <strong>Benchmark:</strong> ${fund.benchmark}<br>
+                        <strong>AUM:</strong> ${fund.aum}
+                    </div>
+                    <p>${fund.description}</p>
+                    <h4 style="margin-top: 1.5rem; margin-bottom: 0.5rem;">Top Holdings:</h4>
+                    <ul>
+                        ${fund.topHoldings.map(h => `<li>${h}</li>`).join('')}
+                    </ul>
+                </div>
+
+                <div id="analysis" class="fund-tab-content">
+                    <table style="width: 100%; margin-top: 1rem;">
+                        <tr><td><strong>Min SIP</strong></td><td>₹${fund.minSip}</td></tr>
+                        <tr><td><strong>Min Lumpsum</strong></td><td>₹${fund.minLumpsum}</td></tr>
+                        <tr><td><strong>TER</strong></td><td>${fund.ter}</td></tr>
+                        <tr><td><strong>NAV</strong></td><td>₹${fund.nav}</td></tr>
+                        <tr style="background: rgba(39, 174, 96, 0.1);"><td><strong>1 Year Return</strong></td><td style="color: var(--color-success); font-weight: bold;">${fund.return1Y}</td></tr>
+                        <tr><td><strong>3 Year Return</strong></td><td style="color: var(--color-success); font-weight: bold;">${fund.return3Y}</td></tr>
+                        <tr><td><strong>5 Year Return</strong></td><td style="color: var(--color-success); font-weight: bold;">${fund.return5Y}</td></tr>
+                    </table>
+                </div>
+
+                <div id="education" class="fund-tab-content">
+                    <div class="education-box">
+                        <strong>${fund.category} Funds Explained:</strong><br><br>
+                        ${getCategoryExplanation(fund.category)}
+                    </div>
+                </div>
+            `;
+            document.getElementById('modalContent').innerHTML = content;
+            document.getElementById('fundModal').classList.add('active');
+        }
+
+        function getCategoryExplanation(category) {
+            const explanations = {
+                'Large Cap': 'Invests in top 100 companies by market cap. <strong>Best for:</strong> Beginners, conservative investors. <strong>Risk:</strong> Low-Moderate. <strong>Returns:</strong> 12-15% p.a. Most stable but slower growth.',
+                'Mid Cap': 'Invests in companies ranked 101-250 by market cap. <strong>Best for:</strong> Moderate risk tolerance. <strong>Risk:</strong> Moderate-High. <strong>Returns:</strong> 15-20% p.a. Higher growth potential than large cap.',
+                'Small Cap': 'Invests in small companies with growth potential. <strong>Best for:</strong> Aggressive investors with 10+ year horizon. <strong>Risk:</strong> Very High. <strong>Returns:</strong> 20-30% p.a. High volatility but highest potential returns.',
+                'Flexi Cap': 'Can invest in any cap size based on opportunities. <strong>Best for:</strong> Balanced growth seekers. <strong>Risk:</strong> Moderate. <strong>Returns:</strong> 15-18% p.a. Most flexible with good diversification.',
+                'Balanced': 'Mix of 60% equity and 40% debt. <strong>Best for:</strong> Conservative investors, retirees. <strong>Risk:</strong> Low. <strong>Returns:</strong> 8-12% p.a. Stable returns with lower volatility.',
+                'Gold': 'Invests in physical gold or gold ETFs. <strong>Best for:</strong> Portfolio diversification, hedging. <strong>Risk:</strong> Moderate. <strong>Returns:</strong> 10-12% p.a. Acts as insurance against inflation and stock market crashes.'
+            };
+            return explanations[category] || 'Learn more about this fund category.';
+        }
+
+        function switchFundTab(tabName) {
+            document.querySelectorAll('.fund-tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+
+            document.querySelectorAll('.fund-tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function closeFundModal() {
+            document.getElementById('fundModal').classList.remove('active');
+        }
+
+        function investFund(fundName) {
+            alert(`🎉 Initiated investment in ${fundName}!\n\nIn a real app, this would take you to the investment flow with SIP/Lumpsum options, bank selection, and payment.`);
+        }
+
+        function filterFunds() {
+            const category = document.getElementById('categoryFilter').value;
+            const sip = document.getElementById('sipFilter').value;
+            const returns = document.getElementById('returnFilter').value;
+            const ter = document.getElementById('terFilter').value;
+
+            let filtered = fundsDatabase;
+
+            if (category) filtered = filtered.filter(f => f.category === category);
+            if (sip) filtered = filtered.filter(f => parseInt(f.minSip) <= parseInt(sip));
+            if (returns) filtered = filtered.filter(f => parseFloat(f.return1Y) >= parseFloat(returns));
+            if (ter) filtered = filtered.filter(f => parseFloat(f.ter) <= parseFloat(ter));
+
+            const fundsList = document.getElementById('fundsList');
+            fundsList.innerHTML = filtered.map(fund => createFundCard(fund)).join('');
+
+            if (filtered.length === 0) {
+                fundsList.innerHTML = '<div class="no-data"><p>No funds match your filters. Try adjusting criteria.</p></div>';
+            }
+        }
+
+        function resetFilters() {
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('sipFilter').value = '';
+            document.getElementById('returnFilter').value = '';
+            document.getElementById('terFilter').value = '';
+            displayAllFunds();
+        }
+
+        function calculateSIP() {
+            const amount = parseFloat(document.getElementById('sipAmount').value);
+            const years = parseFloat(document.getElementById('sipYears').value);
+            const rate = parseFloat(document.getElementById('sipReturn').value) / 100 / 12;
+            const months = years * 12;
+
+            const futureValue = amount * (((Math.pow(1 + rate, months) - 1) / rate) * (1 + rate));
+            const totalInvested = amount * months;
+            const gains = futureValue - totalInvested;
+
+            const fundName = document.getElementById('sipFundName').value || 'Your SIP';
+            const result = `
+                <div style="background: linear-gradient(135deg, rgba(39, 174, 96, 0.1), rgba(0, 180, 166, 0.1)); padding: 1rem; border-radius: 8px; border-left: 4px solid var(--color-success);">
+                    <div style="margin-bottom: 0.5rem;">
+                        <strong>${fundName}</strong><br>
+                        <small style="color: var(--color-text-light);">SIP Investment Projection</small>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                        <div>
+                            <div style="font-size: 0.8rem; color: var(--color-text-light); font-weight: 600; text-transform: uppercase;">Total Invested</div>
+                            <div style="font-size: 1.3rem; font-weight: bold; color: var(--color-primary);">₹${totalInvested.toLocaleString('en-IN', {maximumFractionDigits: 0})}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.8rem; color: var(--color-text-light); font-weight: 600; text-transform: uppercase;">Future Value</div>
+                            <div style="font-size: 1.3rem; font-weight: bold; color: var(--color-success);">₹${futureValue.toLocaleString('en-IN', {maximumFractionDigits: 0})}</div>
+                        </div>
+                        <div style="grid-column: 1/-1;">
+                            <div style="font-size: 0.8rem; color: var(--color-text-light); font-weight: 600; text-transform: uppercase;">Estimated Gains</div>
+                            <div style="font-size: 1.3rem; font-weight: bold; color: var(--color-success);">₹${gains.toLocaleString('en-IN', {maximumFractionDigits: 0})} (+${(gains/totalInvested*100).toFixed(1)}%)</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('sipResult').innerHTML = result;
+        }
+
+        function calculateLumpsum() {
+            const amount = parseFloat(document.getElementById('lumpsumAmount').value);
+            const years = parseFloat(document.getElementById('lumpsumYears').value);
+            const rate = parseFloat(document.getElementById('lumpsumReturn').value) / 100;
+
+            const futureValue = amount * Math.pow(1 + rate, years);
+            const gains = futureValue - amount;
+
+            const fundName = document.getElementById('lumpsumFundName').value || 'Your Lumpsum';
+            const result = `
+                <div style="background: linear-gradient(135deg, rgba(39, 174, 96, 0.1), rgba(0, 180, 166, 0.1)); padding: 1rem; border-radius: 8px; border-left: 4px solid var(--color-success);">
+                    <div style="margin-bottom: 0.5rem;">
+                        <strong>${fundName}</strong><br>
+                        <small style="color: var(--color-text-light);">Lumpsum Investment Projection</small>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                        <div>
+                            <div style="font-size: 0.8rem; color: var(--color-text-light); font-weight: 600; text-transform: uppercase;">Initial Investment</div>
+                            <div style="font-size: 1.3rem; font-weight: bold; color: var(--color-primary);">₹${amount.toLocaleString('en-IN', {maximumFractionDigits: 0})}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.8rem; color: var(--color-text-light); font-weight: 600; text-transform: uppercase;">Future Value</div>
+                            <div style="font-size: 1.3rem; font-weight: bold; color: var(--color-success);">₹${futureValue.toLocaleString('en-IN', {maximumFractionDigits: 0})}</div>
+                        </div>
+                        <div style="grid-column: 1/-1;">
+                            <div style="font-size: 0.8rem; color: var(--color-text-light); font-weight: 600; text-transform: uppercase;">Estimated Gains</div>
+                            <div style="font-size: 1.3rem; font-weight: bold; color: var(--color-success);">₹${gains.toLocaleString('en-IN', {maximumFractionDigits: 0})} (+${(gains/amount*100).toFixed(1)}%)</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('lumpsumResult').innerHTML = result;
+        }
+
+        function updateComparison() {
+            const fund1Id = document.getElementById('fund1').value;
+            const fund2Id = document.getElementById('fund2').value;
+
+            if (!fund1Id || !fund2Id) {
+                document.getElementById('comparisonResult').innerHTML = '<p style="color: var(--color-text-light);">Select two funds to compare</p>';
+                return;
+            }
+
+            const fund1 = fundsDatabase.find(f => f.id === fund1Id);
+            const fund2 = fundsDatabase.find(f => f.id === fund2Id);
+
+            const comparison = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>${fund1.name}</th>
+                            <th>${fund2.name}</th>
+                            <th>Better</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Category</strong></td>
+                            <td>${fund1.category}</td>
+                            <td>${fund2.category}</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Min SIP</strong></td>
+                            <td>₹${fund1.minSip}</td>
+                            <td>₹${fund2.minSip}</td>
+                            <td>${parseInt(fund1.minSip) < parseInt(fund2.minSip) ? '✓ ' + fund1.name.split(' ')[0] : '✓ ' + fund2.name.split(' ')[0]}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TER</strong></td>
+                            <td>${fund1.ter}</td>
+                            <td>${fund2.ter}</td>
+                            <td>${parseFloat(fund1.ter) < parseFloat(fund2.ter) ? '✓ ' + fund1.name.split(' ')[0] : '✓ ' + fund2.name.split(' ')[0]}</td>
+                        </tr>
+                        <tr style="background: rgba(39, 174, 96, 0.1);">
+                            <td><strong>1 Year Return</strong></td>
+                            <td style="color: var(--color-success); font-weight: bold;">${fund1.return1Y}</td>
+                            <td style="color: var(--color-success); font-weight: bold;">${fund2.return1Y}</td>
+                            <td>${parseFloat(fund1.return1Y) > parseFloat(fund2.return1Y) ? '✓ ' + fund1.name.split(' ')[0] : '✓ ' + fund2.name.split(' ')[0]}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>3 Year Return</strong></td>
+                            <td style="color: var(--color-success); font-weight: bold;">${fund1.return3Y}</td>
+                            <td style="color: var(--color-success); font-weight: bold;">${fund2.return3Y}</td>
+                            <td>${parseFloat(fund1.return3Y) > parseFloat(fund2.return3Y) ? '✓ ' + fund1.name.split(' ')[0] : '✓ ' + fund2.name.split(' ')[0]}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>5 Year Return</strong></td>
+                            <td style="color: var(--color-success); font-weight: bold;">${fund1.return5Y}</td>
+                            <td style="color: var(--color-success); font-weight: bold;">${fund2.return5Y}</td>
+                            <td>${parseFloat(fund1.return5Y) > parseFloat(fund2.return5Y) ? '✓ ' + fund1.name.split(' ')[0] : '✓ ' + fund2.name.split(' ')[0]}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Fund Manager</strong></td>
+                            <td>${fund1.fundManager}</td>
+                            <td>${fund2.fundManager}</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('comparisonResult').innerHTML = comparison;
+        }
+
+        function setupCharts() {
+            // Performance Chart
+            const ctx = document.getElementById('performanceChart');
+            if (ctx) {
+                const canvas = ctx;
+                canvas.width = canvas.offsetWidth;
+                canvas.height = 300;
+
+                const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                const performanceData = [8.2, 9.1, 10.5, 11.2, 10.8, 12.5, 13.8, 14.2, 15.1, 16.3, 17.1, 18.5];
+
+                const chartCtx = canvas.getContext('2d');
+                drawLineChart(chartCtx, monthLabels, performanceData, 'Portfolio Value Growth (% gain)');
+            }
+        }
+
+        function drawLineChart(ctx, labels, data, title) {
+            const width = ctx.canvas.width;
+            const height = ctx.canvas.height;
+            const padding = 60;
+
+            // Background
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, width, height);
+
+            // Grid lines
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 10; i++) {
+                const y = padding + (height - 2 * padding) * (i / 10);
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(width - padding, y);
+                ctx.stroke();
+            }
+
+            // Axes
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, height - padding);
+            ctx.lineTo(width - padding, height - padding);
+            ctx.stroke();
+
+            // Draw line
+            ctx.strokeStyle = '#2d5a7b';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            const maxData = Math.max(...data);
+            for (let i = 0; i < data.length; i++) {
+                const x = padding + ((width - 2 * padding) / (data.length - 1)) * i;
+                const y = height - padding - ((data[i] / maxData) * (height - 2 * padding));
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+
+            // Draw points
+            ctx.fillStyle = '#00b4a6';
+            for (let i = 0; i < data.length; i++) {
+                const x = padding + ((width - 2 * padding) / (data.length - 1)) * i;
+                const y = height - padding - ((data[i] / maxData) * (height - 2 * padding));
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Labels
+            ctx.fillStyle = '#666';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            for (let i = 0; i < labels.length; i++) {
+                const x = padding + ((width - 2 * padding) / (labels.length - 1)) * i;
+                ctx.fillText(labels[i], x, height - padding + 25);
+            }
+
+            // Y-axis labels
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 10; i++) {
+                const y = padding + (height - 2 * padding) * (i / 10);
+                const value = ((maxData / 10) * (10 - i)).toFixed(1);
+                ctx.fillText(value + '%', padding - 10, y + 4);
+            }
+
+            // Title
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(title, width / 2, 30);
+        }
+
+        // Initialize on load
+        calculateSIP();
+        calculateLumpsum();
+    </script>
+</body>
+</html>
